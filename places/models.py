@@ -41,6 +41,7 @@ class Gallery(models.Model):
         return str(self.id)
 
 class Comment(models.Model):
+    parent_comment = models.ForeignKey('places.Comment',related_name='master_comments',null=True,blank=True,on_delete=models.CASCADE)
     place = models.ForeignKey('places.Place', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     date = models.DateTimeField()

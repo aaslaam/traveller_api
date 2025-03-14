@@ -82,16 +82,27 @@ def protected(request,pk):
 
 @api_view (['POST'])
 @permission_classes([IsAuthenticated])
-def create_comment(request,pk):
+def create_comment(request, pk):
     if Place.objects.filter(pk=pk).exists():
-        instances = Place.objects.get(pk=pk)
+        place = Place.objects.get(pk=pk)
         comment = request.data['comment']
-        Comment.objects.create(
-            place=instances,
+        try:
+            parent_comment = request.data['parent_comment']
+        except:
+            parent_comment = None
+
+        instance =  Comment.objects.create(
+            place=place,
             user=request.user,
             comment=comment,
             date=datetime.datetime.now()
         )
+        if parent_comment:
+            if Comment.objects.filter(pk=parent_comment).exists():
+                parent_comment = Comment.objects.get(pk=parent_comment)
+            instance.parent_comment = parent_comment
+            instance.save()
+
         respone_data = {
             "status": 3001,
             "message": "succesfully added"
@@ -108,7 +119,7 @@ def create_comment(request,pk):
 def list_comment(request,pk):
     if Place.objects.filter(pk=pk).exists():
         place = Place.objects.get(pk=pk)
-        instances = Comment.objects.filter(place=place)
+        instances = Comment.objects.filter(place=place,parent_comment=None)
         context = {
             "request": request   
         }
