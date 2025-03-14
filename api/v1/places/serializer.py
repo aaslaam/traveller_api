@@ -3,9 +3,30 @@ from places.models import *
 from rest_framework import serializers
 
 class PlaceSerializer(ModelSerializer):
+    likes = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+
+    
     class Meta:
         model = Place
-        fields = ['id', 'name', 'featured_image','place']
+        fields = ['id', 'name', 'featured_image', 'place', 'likes',"is_liked"]
+    
+    def get_likes(self, instance):
+        return instance.likes.count()
+    def get_is_liked(self, instance):
+        request = self.context.get('request')
+        if instance.likes.filter(username=request.user.username).exists():
+            return True
+        else:
+            return False 
+    def get_likes(self, instance):
+            return instance.likes.count()
+    def get_is_liked(self, instance):
+        request = self.context.get('request')
+        if instance.likes.filter(username=request.user.username).exists():
+            return True
+        else:
+            return False
 
 class GallerySerializer(ModelSerializer):
     class Meta:
@@ -15,10 +36,12 @@ class GallerySerializer(ModelSerializer):
 class PlaceDetailSerializer(ModelSerializer):
     category = serializers.SerializerMethodField()
     gallery = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
     
     class Meta:
         model = Place
-        fields = ['id', 'name', 'featured_image', "description", "place", "category", "gallery"]
+        fields = ['id', 'name', 'featured_image', "description", "place", "category", "gallery",'likes',"is_liked"]
     
     def get_category(self, instance):
         return instance.category.name
@@ -27,6 +50,7 @@ class PlaceDetailSerializer(ModelSerializer):
         images = Gallery.objects.filter(place=instance)
         serializer = GallerySerializer(images, many=True)
         return serializer.data
+    
 
 class CommentSerializer(ModelSerializer):
     user = serializers.SerializerMethodField()

@@ -124,3 +124,25 @@ def list_comment(request,pk):
             "message": "Place not found"
         })
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_place(request, pk):
+    if Place.objects.filter(pk=pk).exists():
+        instance = Place.objects.get(pk=pk)
+        if instance.likes.filter(username=request.user.username).exists():
+            instance.likes.remove(request.user)
+            message = "Unliked"
+        else:
+            instance.likes.add(request.user)  # Changed from like to likes
+            message = "Liked"
+            
+        response_data = {
+            "status": 3001,
+            "message": message
+        }
+        return Response(response_data)
+    
+    return Response({
+        "status": 3002,
+        "message": "Place not found"
+    })

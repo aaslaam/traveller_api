@@ -7,6 +7,9 @@ urlpatterns = [
     path('protected/<int:pk>/',views.protected),
     path('comments/create/<int:pk>/',views.create_comment),
     path('comments/list/<int:pk>/',views.list_comment),
+    path('like/<int:pk>/',views.like_place),
+
+
 
 
 
